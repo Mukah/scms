@@ -92,7 +92,7 @@
 			Não foi possível excluir a postagem. Tente novamente.
 		</div>
 
-		<?php $post = mysql_query("SELECT posts.*, users.name as author_name FROM posts JOIN users ON posts.author = users.user_id WHERE post_id = '" . $_GET['pid'] . "'") ?>
+		<?php $post = mysql_query("SELECT posts.*, users.name as author_name FROM posts JOIN users ON posts.author_id = users.user_id WHERE post_id = '" . $_GET['pid'] . "'") ?>
 		<?php $id = mysql_result($post, 0, "post_id") ?>
 		<?php $title = mysql_result($post, 0, "title") ?>
 		<?php $excerpt = mysql_result($post, 0, "excerpt") ?>

@@ -167,16 +167,17 @@ abstract class DBObject {
 		$this->attrs[$field] = $value;
 		return save();
 	}
-	# not implemented
-	# public function destroy() {
-	#	$delete = Database::query("DELETE FROM {$this->plural()} WHERE {$this->pk()} = {$this->id()};");
+	
+	public function destroy() {
+		$delete = Database::query("DELETE FROM {$this->plural()} WHERE {$this->pk()} = {$this->id()};");
 	#	if($delete) {
 	#		if(unset($object)) {
 	#		return true;
 	#		}
 	#	}
-	#	return false;
-	# }
+		unset($this);
+		return $delete;
+	}
 
 	// ENCAPSULATION
 	public function id() {
@@ -221,13 +222,15 @@ class User extends DBObject {
 
 
 $post = Post::find_by_id(1);
+$post = new Post();
+$post->set('title', 'Como cuidar de um macaco! 2');
+$post->set('author', 1);
 echo $post->get('title') . "<br />";
 echo $post->get('content');
-//$post->set('title', 'Como cuidar de um macaco! 2');
-//$post->set('author', 1);
+var_dump($post->save());
+$post->destroy();
 echo $post->get('title');
 var_dump($post->get('author'));
-var_dump($post->save());
 echo $post->id();
 
 //var_dump(Post::where('post_id = 1'));

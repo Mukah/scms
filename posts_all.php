@@ -113,7 +113,7 @@
 			</thead>
 			<tbody id="posts">
 			<!--
-				<?php $posts = mysql_query("SELECT posts.*, users.name as author_name FROM posts JOIN users ON posts.author = users.user_id ORDER BY created_at DESC;") ?>
+				<?php $posts = mysql_query("SELECT posts.*, users.name as author_name FROM posts JOIN users ON posts.author_id = users.user_id ORDER BY created_at DESC;") ?>
 				<?php while($post = mysql_fetch_assoc($posts)): ?>
 					<tr>
 						<th><input type="checkbox"></th>
