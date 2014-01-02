@@ -8,6 +8,7 @@ abstract class DBObject {
 	private $vars;
 
 	private $attrs = array();
+	private $fks = array();
 
 	// CONSTRUCTOR
 	function __construct() {
@@ -96,6 +97,12 @@ abstract class DBObject {
 		return array_keys($this->attrs);
 	}
 	public function get($field) {
+		if(isset($this->fks[$field])) {
+			$fk = $this->fks[$field];
+			if(isset($this->attrs[$fk['field']])) {
+				return $fk['class']::find_by_id($this->attrs[$fk['field']]);
+			}
+		}
 		return (isset($this->attrs[$field]) ? $this->attrs[$field] : NULL);
 	}
 	public function set($field, $value) {
@@ -161,6 +168,10 @@ abstract class DBObject {
 	public function pk() {
 		return "{$this->singular()}_id";
 	}
+
+	protected function __fk($field, $class, $label) {
+		$this->fks[$label] = array('class' => $class, 'field' => $field);
+	}
 }
 class Post extends DBObject {
 	public static $plural = "posts";
@@ -168,8 +179,18 @@ class Post extends DBObject {
 
 	function __construct() {
 		parent::__construct();
+		parent::__fk("author_id", "User", "author");
 	}
 }
+class User extends DBObject {
+	public static $plural = "users";
+	public static $singular = "user";
+
+	function __construct() {
+		parent::__construct();
+	}
+}
+
 
 $post = Post::find_by_id(1);
 echo $post->get('title') . "<br />";
@@ -177,6 +198,7 @@ echo $post->get('content');
 //$post->set('title', 'Como cuidar de um macaco! 2');
 //$post->set('author', 1);
 echo $post->get('title');
+var_dump($post->get('author')->get('name'));
 var_dump($post->save());
 echo $post->id();
 
