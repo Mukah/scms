@@ -123,10 +123,21 @@ abstract class DBObject {
 	}
 	private function insert() {
 		$values = array();
-		foreach ($this->attrs as $field => $value) {
-			array_push($values, "{$field} = '{$value}'");
+		foreach (array_filter($this->attrs) as $field => $value) {
+			switch(gettype($value)){
+				case "integer":	case "double":
+					$val = $value;
+					break;
+				case "NULL":
+					$val = "NULL";
+					break;
+				default: $val = "'{$value}'"; break;
+			}
+			$values[$field] = "{$field} = {$val}";
 		}
 		unset($values[$this->pk()]);
+		$values['created_at'] = 'NOW()';
+
 		$string = implode(', ', $values);
 		$query = Database::query("INSERT INTO {$this->plural()} SET {$string};");
 		$this->set($this->pk(), mysql_insert_id(Database::$connection));
@@ -144,9 +155,11 @@ abstract class DBObject {
 					break;
 				default: $val = "'{$value}'"; break;
 			}
-			array_push($values, "{$field} = {$val}");
+			$values[$field] = "{$field} = {$val}";
 		}
 		unset($values[$this->pk()]);
+		$values['updated_at'] = 'NOW()';
+
 		$string = implode(', ', $values);
 		return Database::query("UPDATE {$this->plural()} SET {$string} WHERE {$this->pk()} = {$this->id()};");
 	}
@@ -154,6 +167,16 @@ abstract class DBObject {
 		$this->attrs[$field] = $value;
 		return save();
 	}
+	# not implemented
+	# public function destroy() {
+	#	$delete = Database::query("DELETE FROM {$this->plural()} WHERE {$this->pk()} = {$this->id()};");
+	#	if($delete) {
+	#		if(unset($object)) {
+	#		return true;
+	#		}
+	#	}
+	#	return false;
+	# }
 
 	// ENCAPSULATION
 	public function id() {
@@ -169,9 +192,14 @@ abstract class DBObject {
 		return "{$this->singular()}_id";
 	}
 
-	protected function __fk($field, $class, $label) {
-		$this->fks[$label] = array('class' => $class, 'field' => $field);
+	protected function __belongs_to($class, $field, $label) {
+		$this->fks[$label] = array('class' => $class, 'field' => $field, 'type' => '1');
 	}
+
+	# not implemented #	
+	# protected function __mas_many($class, $label) {
+	# 	$this->fks[$label] = array('class' => $class, 'type' => 'n');
+	# }
 }
 class Post extends DBObject {
 	public static $plural = "posts";
@@ -179,7 +207,7 @@ class Post extends DBObject {
 
 	function __construct() {
 		parent::__construct();
-		parent::__fk("author_id", "User", "author");
+		parent::__belongs_to("User", "author_id", "author");
 	}
 }
 class User extends DBObject {
@@ -198,7 +226,7 @@ echo $post->get('content');
 //$post->set('title', 'Como cuidar de um macaco! 2');
 //$post->set('author', 1);
 echo $post->get('title');
-var_dump($post->get('author')->get('name'));
+var_dump($post->get('author'));
 var_dump($post->save());
 echo $post->id();
 
