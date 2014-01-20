@@ -3,7 +3,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>sCMS - Posts &raquo; Todas as postagens</title>
+	<title>sCMS - <?php echo $t->__('menu_posts') ?> &raquo; <?php echo $t->__('posts_all_title') ?></title>
 	<?php include('headings.php') ?>
 
 	<script type="text/javascript" src="js/ajax_posts.js"></script>

@@ -1,5 +1,6 @@
 <?php
 require_once("class.dbobject.php");
+
 class Post extends DBObject {
 	public static $plural = "posts";
 	public static $singular = "post";
@@ -7,6 +8,8 @@ class Post extends DBObject {
 	function __construct() {
 		parent::__construct();
 		parent::__belongs_to("User", "author_id", "author");
+		parent::__has_many("PostCategory", "post_id", "categories");
+		parent::__has_many("PostTag", "post_id", "tags");
 	}
 }
 

@@ -99,9 +99,17 @@ abstract class DBObject {
 	public function get($field) {
 		if(isset($this->fks[$field])) {
 			$fk = $this->fks[$field];
-			if(isset($this->attrs[$fk['field']])) {
-				return $fk['class']::find_by_id($this->attrs[$fk['field']]);
+			switch($fk['type']) {
+				case 'belongs_to':
+					if(isset($this->attrs[$fk['field']])) {
+						return $fk['class']::find_by_id($this->attrs[$fk['field']]);
+					}
+				break;
+				case 'has_many':
+					return $fk['class']::where($fk['field'] . ' = '. $this->id());
+				break;
 			}
+			
 		}
 		return (isset($this->attrs[$field]) ? $this->attrs[$field] : NULL);
 	}
@@ -194,7 +202,10 @@ abstract class DBObject {
 	}
 
 	protected function __belongs_to($class, $field, $label) {
-		$this->fks[$label] = array('class' => $class, 'field' => $field, 'type' => '1');
+		$this->fks[$label] = array('class' => $class, 'field' => $field, 'type' => 'belongs_to');
+	}
+	protected function __has_many($class, $field, $label) {
+		$this->fks[$label] = array('class' => $class, 'field' => $field, 'type' => 'has_many');
 	}
 
 	# not implemented #	
